@@ -43,7 +43,7 @@ public class Pedido {
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemPedido> itens = new ArrayList<>();
 
-    protected Pedido() { }
+    public Pedido() { }
 
     public Long getId() {
         return id;

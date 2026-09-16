@@ -100,9 +100,11 @@ public class CarrinhoService {
                 });
     }
 
+    // antes:  subtotal.compareTo(FRETE_GRATIS_ACIMA_DE) >= 0 ? BigDecimal.ZERO : FRETE_FIXO
     public BigDecimal calcularFrete(BigDecimal subtotal) {
-        return subtotal.compareTo(FRETE_GRATIS_ACIMA_DE) >= 0
-                ? BigDecimal.ZERO : FRETE_FIXO;
+        return subtotal.compareTo(configuracoes.getFreteGratisAcimaDe()) >= 0
+                ? BigDecimal.ZERO
+                : configuracoes.getFreteFixo();
     }
 
     private CarrinhoResponseDTO paraResponse(Carrinho c) {
@@ -117,4 +119,6 @@ public class CarrinhoService {
         var frete = calcularFrete(subtotal);
         return new CarrinhoResponseDTO(c.getId(), itens, subtotal, frete, subtotal.add(frete));
     }
+
+
 }
