@@ -1,6 +1,7 @@
 package br.com.feiraviva.dto;
 
 import jakarta.validation.constraints.*;
+import java.util.List; // Não se esqueça deste import
 
 public record ClienteDTO(
         @NotBlank
@@ -15,5 +16,8 @@ public record ClienteDTO(
         @Size(min = 6, max = 60)
         String senha,
 
-        String telefone
+        String telefone,
+
+        // A linha que faltava para receber os endereços do Postman
+        List<EnderecoDTO> enderecos
 ) { }

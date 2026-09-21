@@ -32,6 +32,25 @@ public class ClienteService {
         cliente.setSenhaHash(dto.senha()); // provisório
         cliente.setTelefone(dto.telefone());
 
+        // NOVA PARTE: Processar os endereços recebidos na requisição
+        if (dto.enderecos() != null && !dto.enderecos().isEmpty()) {
+            for (var enderecoDto : dto.enderecos()) {
+                var endereco = new Endereco();
+                endereco.setCep(enderecoDto.cep());
+                endereco.setLogradouro(enderecoDto.logradouro());
+                endereco.setNumero(enderecoDto.numero());
+                endereco.setComplemento(enderecoDto.complemento());
+                endereco.setBairro(enderecoDto.bairro());
+                endereco.setCidade(enderecoDto.cidade());
+                endereco.setUf(enderecoDto.uf());
+
+                // Estabelece a ligação de "quem é o dono deste endereço"
+                endereco.setCliente(cliente);
+
+                cliente.getEnderecos().add(endereco);
+            }
+        }
+
         return paraResponse(clienteRepository.save(cliente));
     }
 

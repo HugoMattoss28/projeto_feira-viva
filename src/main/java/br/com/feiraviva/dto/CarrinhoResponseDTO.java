@@ -5,4 +5,6 @@ import java.util.List;
 
 public record CarrinhoResponseDTO(
         Long id, List<ItemResponseDTO> itens,
+        String cupom, BigDecimal desconto,
+        String estrategiaFrete,
         BigDecimal subtotal, BigDecimal frete, BigDecimal total) { }

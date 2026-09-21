@@ -1,10 +1,13 @@
 package br.com.feiraviva.service;
 
+import br.com.feiraviva.config.ConfiguracoesFeiraViva;
 import br.com.feiraviva.dto.*;
 import br.com.feiraviva.exception.RegraDeNegocioException;
 import br.com.feiraviva.exception.ResourceNotFoundException;
+import br.com.feiraviva.factory.CupomFactory;
 import br.com.feiraviva.model.*;
 import br.com.feiraviva.repository.*;
+import br.com.feiraviva.strategy.CalculadoraFrete;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,12 +23,24 @@ public class CarrinhoService {
     private final ProdutoRepository produtoRepository;
     private final ClienteRepository clienteRepository;
 
+    // Novas dependências declaradas aqui
+    private final ConfiguracoesFeiraViva configuracoes;
+    private final CupomFactory cupomFactory;
+    private final CalculadoraFrete calculadoraFrete; // <-- 1. Adicione esta linha
+
+    // Construtor atualizado para receber todas as dependências do Spring
     public CarrinhoService(CarrinhoRepository carrinhoRepository,
                            ProdutoRepository produtoRepository,
-                           ClienteRepository clienteRepository) {
+                           ClienteRepository clienteRepository,
+                           ConfiguracoesFeiraViva configuracoes,
+                           CupomFactory cupomFactory,
+                           CalculadoraFrete calculadoraFrete) { // <-- 2. Adicione aqui
         this.carrinhoRepository = carrinhoRepository;
         this.produtoRepository = produtoRepository;
         this.clienteRepository = clienteRepository;
+        this.configuracoes = configuracoes;
+        this.cupomFactory = cupomFactory;
+        this.calculadoraFrete = calculadoraFrete;               // <-- 3. E guarde-a aqui
     }
 
     @Transactional
@@ -100,11 +115,33 @@ public class CarrinhoService {
                 });
     }
 
-    // antes:  subtotal.compareTo(FRETE_GRATIS_ACIMA_DE) >= 0 ? BigDecimal.ZERO : FRETE_FIXO
-    public BigDecimal calcularFrete(BigDecimal subtotal) {
-        return subtotal.compareTo(configuracoes.getFreteGratisAcimaDe()) >= 0
-                ? BigDecimal.ZERO
-                : configuracoes.getFreteFixo();
+    @Transactional
+    public CarrinhoResponseDTO definirEstrategiaFrete(Long clienteId, String tipo) {
+        if (!calculadoraFrete.existe(tipo)) {
+            throw new ResourceNotFoundException("Estratégia de frete inválida: " + tipo);
+        }
+        var carrinho = buscarOuCriar(clienteId);
+        carrinho.setEstrategiaFrete(tipo.toUpperCase());
+        return paraResponse(carrinho);
+    }
+
+    public long identityHashCodeConfiguracoes() {
+        return System.identityHashCode(configuracoes);
+    }
+
+    @Transactional
+    public CarrinhoResponseDTO aplicarCupom(Long clienteId, String codigo) {
+        var carrinho = buscarOuCriar(clienteId);
+        var cupom = cupomFactory.criar(codigo);      // 404 se inválido
+        carrinho.setCodigoCupom(cupom.getCodigo());
+        return paraResponse(carrinho);
+    }
+
+    @Transactional
+    public CarrinhoResponseDTO removerCupom(Long clienteId) {
+        var carrinho = buscarOuCriar(clienteId);
+        carrinho.setCodigoCupom(null);
+        return paraResponse(carrinho);
     }
 
     private CarrinhoResponseDTO paraResponse(Carrinho c) {
@@ -116,9 +153,20 @@ public class CarrinhoService {
         var subtotal = c.getItens().stream()
                 .map(ItemCarrinho::getSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        var frete = calcularFrete(subtotal);
-        return new CarrinhoResponseDTO(c.getId(), itens, subtotal, frete, subtotal.add(frete));
+
+        var estrategia = c.getEstrategiaFrete() == null ? "PADRAO" : c.getEstrategiaFrete();
+        var frete = calculadoraFrete.calcular(estrategia, subtotal);   // Strategy em ação
+
+        BigDecimal desconto = BigDecimal.ZERO;
+        String cupomAplicado = null;
+        if (c.getCodigoCupom() != null) {
+            var cupom = cupomFactory.criar(c.getCodigoCupom());
+            desconto = cupom.calcularDesconto(subtotal);
+            cupomAplicado = cupom.getCodigo();
+        }
+
+        var total = subtotal.add(frete).subtract(desconto);
+        return new CarrinhoResponseDTO(c.getId(), itens, cupomAplicado, desconto,
+                estrategia, subtotal, frete, total);
     }
-
-
 }

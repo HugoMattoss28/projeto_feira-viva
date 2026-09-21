@@ -2,6 +2,9 @@ package br.com.feiraviva.model;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "categorias")
 public class Categoria {
@@ -23,7 +26,32 @@ public class Categoria {
         this.descricao = descricao;
     }
 
-    // getters e setters (gerar pelo IDE (Alt + Insert))
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoria_pai_id")
+    private Categoria categoriaPai;
+
+    @OneToMany(mappedBy = "categoriaPai")
+    private List<Categoria> subcategorias = new ArrayList<>();
+
+    // Composite uniforme: a mesma classe é folha e composta
+    public boolean ehFolha() {
+        return subcategorias == null || subcategorias.isEmpty();
+    }
+
+
+// getters e setters (gerar pelo IDE (Alt + Insert))
+
+    public Categoria getCategoriaPai() {
+        return categoriaPai;
+    }
+
+    public List<Categoria> getSubcategorias() {
+        return subcategorias;
+    }
+
+    public void setSubcategorias(List<Categoria> subcategorias) {
+        this.subcategorias = subcategorias;
+    }
 
     public Long getId() {
 
@@ -54,4 +82,9 @@ public class Categoria {
 
         this.descricao = descricao;
     }
+
+    public void setCategoriaPai(Categoria horta) {
+    }
+
+
 }

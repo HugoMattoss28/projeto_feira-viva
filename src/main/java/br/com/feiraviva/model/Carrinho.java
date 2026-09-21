@@ -22,10 +22,33 @@ public class Carrinho {
 
     private LocalDateTime dataCriacao = LocalDateTime.now();
 
+    @Column(name = "estrategia_frete", length = 20)
+    private String estrategiaFrete;
+
+    @Column(name = "codigo_cupom", length = 20)
+    private String codigoCupom;
+
+    // + getter/setter
+    public String getEstrategiaFrete() {
+        return estrategiaFrete;
+    }
+
+    public void setEstrategiaFrete(String estrategiaFrete) {
+        this.estrategiaFrete = estrategiaFrete;
+    }
+
+    public String getCodigoCupom() {
+        return codigoCupom;
+    }
+
+    public void setCodigoCupom(String codigoCupom) {
+        this.codigoCupom = codigoCupom;
+    }
+
+
     protected Carrinho() { }
     public Carrinho(Cliente cliente) { this.cliente = cliente; }
 
-    // getters e setters (gerar pelo IDE)
 
     public Long getId() {
         return id;
