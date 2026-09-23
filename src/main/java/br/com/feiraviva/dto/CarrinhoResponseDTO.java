@@ -1,8 +1,8 @@
 package br.com.feiraviva.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.util.List;
-import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "Resposta do carrinho com totais calculados")
 public record CarrinhoResponseDTO(
@@ -13,4 +13,4 @@ public record CarrinhoResponseDTO(
         @Schema(description = "Estratégia de frete vigente", example = "PADRAO") String estrategiaFrete,
         @Schema(example = "70.00") BigDecimal subtotal,
         @Schema(example = "15.00") BigDecimal frete,
-        @Schema(example = "78.00") BigDecimal total) { }ecimal subtotal, BigDecimal frete, BigDecimal total) { }
+        @Schema(example = "78.00") BigDecimal total) { }
