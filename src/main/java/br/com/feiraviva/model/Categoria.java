@@ -83,7 +83,8 @@ public class Categoria {
         this.descricao = descricao;
     }
 
-    public void setCategoriaPai(Categoria horta) {
+    public void setCategoriaPai(Categoria categoriaPai) {
+        this.categoriaPai = categoriaPai;
     }
 
 

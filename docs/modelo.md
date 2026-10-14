@@ -3,7 +3,7 @@
 > Documento vivo do modelo de domínio do projeto.
 > **Stack:** Java 21 LTS • Spring Boot 4.1.1 • Maven • React
 > **Pacote base:** `br.com.feiraviva`
-> **Versão-base:** Aula 05 • **Início do código:** Aula 06 • **Manutenção:** equipes + professor.
+> **Versão:** 1.1 (Spring Security, BCrypt e migração V4 — Aula 14) • **Versão-base:** Aula 05 • **Início do código:** Aula 06 • **Manutenção:** equipes + professor.
 
 ## 1. Identificação
 
