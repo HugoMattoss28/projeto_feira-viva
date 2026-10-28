@@ -1,5 +1,7 @@
 package br.com.feiraviva.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -7,6 +9,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "categorias")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Categoria {
 
     @Id
@@ -30,6 +33,7 @@ public class Categoria {
     @JoinColumn(name = "categoria_pai_id")
     private Categoria categoriaPai;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "categoriaPai")
     private List<Categoria> subcategorias = new ArrayList<>();
 
